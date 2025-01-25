@@ -1,8 +1,9 @@
 import React, { useState, useContext } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, Button, Alert } from "react-native";
 import axios from "axios";
 import { backendURL } from "../services/config";
 import { UserContext } from "../services/UserContext";
+import GlobalStyles from "../styles/GlobalStyles";
 
 export default function EkranLogowania({ navigation }) {
   const [email, setEmail] = useState("");
@@ -19,27 +20,28 @@ export default function EkranLogowania({ navigation }) {
       if (response.status === 200) {
         const userData = response.data.user;
         console.log("Odpowiedź z backendu:", response.data);
-        console.log("Przekazywane userId:", userData.id); // Debug
+        console.log("Przekazywane userId:", userData.id);
 
         setCurrentUser(userData);
-
-        // Przekazywanie userId do TabNavigator
         navigation.navigate("App", {
-          userId: userData.id, // Przekazanie userId
+          userId: userData.id,
         });
       }
     } catch (error) {
       console.error("Błąd logowania:", error);
-      Alert.alert("Błąd", error.response?.data?.detail || "Nie udało się zalogować");
+      Alert.alert(
+        "Błąd",
+        error.response?.data?.detail || "Nie udało się zalogować"
+      );
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Logowanie</Text>
+    <View style={GlobalStyles.container}>
+      <Text style={GlobalStyles.title}>Logowanie</Text>
 
       <TextInput
-        style={styles.input}
+        style={GlobalStyles.input}
         placeholder="E-mail"
         value={email}
         onChangeText={(text) => setEmail(text)}
@@ -48,7 +50,7 @@ export default function EkranLogowania({ navigation }) {
       />
 
       <TextInput
-        style={styles.input}
+        style={GlobalStyles.input}
         placeholder="Hasło"
         value={password}
         onChangeText={(text) => setPassword(text)}
@@ -57,10 +59,10 @@ export default function EkranLogowania({ navigation }) {
 
       <Button title="Zaloguj się" onPress={handleLogin} />
 
-      <Text style={styles.registerText}>
+      <Text style={GlobalStyles.registerText}>
         Nie masz konta?{" "}
         <Text
-          style={styles.registerLink}
+          style={GlobalStyles.registerLink}
           onPress={() => navigation.navigate("EkranRejestracji")}
         >
           Zarejestruj się
@@ -69,35 +71,3 @@ export default function EkranLogowania({ navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 16,
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  input: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-  },
-  registerText: {
-    marginTop: 16,
-    textAlign: "center",
-    color: "#666",
-  },
-  registerLink: {
-    color: "#1E90FF",
-    fontWeight: "bold",
-  },
-});

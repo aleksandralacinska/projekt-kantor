@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
-import { axiosInstance } from "../services/config"; // Import instancji Axios
+import { View, Text, TextInput, Button, Alert } from "react-native";
+import { axiosInstance } from "../services/config";
+import GlobalStyles from "../styles/GlobalStyles";
 
 export default function EkranRejestracji({ navigation }) {
   const [email, setEmail] = useState("");
@@ -10,7 +11,6 @@ export default function EkranRejestracji({ navigation }) {
   const [surname, setSurname] = useState("");
 
   const handleRegister = async () => {
-    // Walidacja pól formularza
     if (!email || !password || !confirmPassword || !name || !surname) {
       Alert.alert("Błąd", "Proszę wypełnić wszystkie pola");
       return;
@@ -22,7 +22,6 @@ export default function EkranRejestracji({ navigation }) {
     }
 
     try {
-      // Wysłanie żądania POST do backendu
       const response = await axiosInstance.post("/register/", {
         email,
         password,
@@ -32,14 +31,17 @@ export default function EkranRejestracji({ navigation }) {
 
       if (response.status === 200) {
         Alert.alert("Sukces", "Konto zostało zarejestrowane");
-        navigation.navigate("EkranLogowania"); // Powrót do ekranu logowania
+        navigation.navigate("EkranLogowania");
       }
     } catch (error) {
       console.error(error);
       if (error.response && error.response.data) {
         Alert.alert("Błąd", error.response.data.detail || "Wystąpił problem");
       } else if (error.code === "ECONNABORTED") {
-        Alert.alert("Błąd", "Czas oczekiwania na odpowiedź serwera został przekroczony.");
+        Alert.alert(
+          "Błąd",
+          "Czas oczekiwania na odpowiedź serwera został przekroczony."
+        );
       } else {
         Alert.alert("Błąd", "Nie udało się zarejestrować konta");
       }
@@ -47,25 +49,25 @@ export default function EkranRejestracji({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Rejestracja</Text>
+    <View style={GlobalStyles.container}>
+      <Text style={GlobalStyles.title}>Rejestracja</Text>
 
       <TextInput
-        style={styles.input}
+        style={GlobalStyles.input}
         placeholder="Imię"
         value={name}
         onChangeText={(text) => setName(text)}
       />
 
       <TextInput
-        style={styles.input}
+        style={GlobalStyles.input}
         placeholder="Nazwisko"
         value={surname}
         onChangeText={(text) => setSurname(text)}
       />
 
       <TextInput
-        style={styles.input}
+        style={GlobalStyles.input}
         placeholder="E-mail"
         value={email}
         onChangeText={(text) => setEmail(text)}
@@ -74,7 +76,7 @@ export default function EkranRejestracji({ navigation }) {
       />
 
       <TextInput
-        style={styles.input}
+        style={GlobalStyles.input}
         placeholder="Hasło"
         value={password}
         onChangeText={(text) => setPassword(text)}
@@ -82,7 +84,7 @@ export default function EkranRejestracji({ navigation }) {
       />
 
       <TextInput
-        style={styles.input}
+        style={GlobalStyles.input}
         placeholder="Potwierdź hasło"
         value={confirmPassword}
         onChangeText={(text) => setConfirmPassword(text)}
@@ -91,34 +93,7 @@ export default function EkranRejestracji({ navigation }) {
 
       <Button title="Zarejestruj się" onPress={handleRegister} />
 
-      <Button
-        title="Powrót"
-        onPress={() => navigation.goBack()}
-        color="gray"
-      />
+      <Button title="Powrót" onPress={() => navigation.goBack()} color="gray" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 16,
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  input: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-  },
-});
