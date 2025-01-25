@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, ActivityIndicator, Alert } from "react-native";
 import axios from "axios";
 import GlobalStyles from "../styles/GlobalStyles";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function EkranKursow() {
   const [rates, setRates] = useState([]);
@@ -40,17 +41,22 @@ export default function EkranKursow() {
   );
 
   return (
-    <View style={GlobalStyles.container}>
-      <Text style={GlobalStyles.title}>Kursy Walut</Text>
-      {loading ? (
-        <ActivityIndicator size="large" color="#1E90FF" />
-      ) : (
-        <FlatList
-          data={rates}
-          renderItem={renderRateItem}
-          keyExtractor={(item) => item.code}
-        />
-      )}
-    </View>
+    <LinearGradient
+      colors={["#006466", "#4d194d"]}
+      style={GlobalStyles.gradientContainer}
+    >
+      <View style={GlobalStyles.container}>
+        <Text style={GlobalStyles.title}>Kursy Walut</Text>
+        {loading ? (
+          <ActivityIndicator size="large" color="#1E90FF" />
+        ) : (
+          <FlatList
+            data={rates}
+            renderItem={renderRateItem}
+            keyExtractor={(item) => item.code}
+          />
+        )}
+      </View>
+    </LinearGradient>
   );
 }

@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, Alert, Keyboard, TouchableWithoutFeedback } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import axios from "axios";
 import { backendURL } from "../services/config";
 import GlobalStyles from "../styles/GlobalStyles";
+import { LinearGradient } from "expo-linear-gradient";
+
+// Import nowego komponentu
+import DismissKeyboard from "../components/DismissKeyboard";
 
 export default function EkranWplaty({ route, navigation }) {
   const [amount, setAmount] = useState("");
@@ -25,14 +29,14 @@ export default function EkranWplaty({ route, navigation }) {
 
     console.log("Próba zasilenia konta:", {
       user_id: userId,
-      currency: currency,
+      currency,
       amount: depositAmount,
     });
 
     try {
       const response = await axios.post(`${backendURL}/deposit/`, {
         user_id: userId,
-        currency: currency,
+        currency,
         amount: depositAmount,
       });
 
@@ -42,9 +46,7 @@ export default function EkranWplaty({ route, navigation }) {
           "Sukces",
           `Twoje konto zostało zasilone. Nowe saldo: ${newBalance.toFixed(2)} PLN`
         );
-        navigation.navigate("App", {
-          userId: userId,
-        });
+        navigation.navigate("App", { userId });
       }
     } catch (error) {
       console.error("Błąd podczas zasilenia konta:", error);
@@ -64,22 +66,31 @@ export default function EkranWplaty({ route, navigation }) {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={GlobalStyles.container}>
-        <Text style={GlobalStyles.title}>Zasilenie Konta</Text>
+    <DismissKeyboard>
+      <LinearGradient
+        colors={["#006466", "#4d194d"]}
+        style={GlobalStyles.gradientContainer}
+      >
+        <View style={GlobalStyles.container}>
+          <Text style={GlobalStyles.title}>Zasilenie Konta</Text>
 
-        <TextInput
-          style={GlobalStyles.input}
-          placeholder="Wprowadź kwotę"
-          value={amount}
-          onChangeText={(text) => setAmount(text)}
-          keyboardType="numeric"
-        />
+          <TextInput
+            style={GlobalStyles.input}
+            placeholder="Wprowadź kwotę"
+            value={amount}
+            onChangeText={(text) => setAmount(text)}
+            keyboardType="numeric"
+          />
 
-        <Button title="Zasil konto" onPress={handleDeposit} />
+          <TouchableOpacity style={GlobalStyles.button} onPress={handleDeposit}>
+            <Text style={GlobalStyles.buttonText}>Zasil konto</Text>
+          </TouchableOpacity>
 
-        <Button title="Powrót" onPress={() => navigation.goBack()} color="gray" />
-      </View>
-    </TouchableWithoutFeedback>
+          <TouchableOpacity style={GlobalStyles.backButton} onPress={() => navigation.goBack()}>
+            <Text style={GlobalStyles.backButtonText}>Powrót</Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+    </DismissKeyboard>
   );
 }

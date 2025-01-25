@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 import { backendURL } from "../services/config";
 import GlobalStyles from "../styles/GlobalStyles";
+import { LinearGradient } from "expo-linear-gradient";
+
+// Import nowego komponentu
+import DismissKeyboard from "../components/DismissKeyboard";
 
 export default function EkranWymiany({ route, navigation }) {
   const userId = route.params?.userId;
@@ -60,13 +64,9 @@ export default function EkranWymiany({ route, navigation }) {
       if (response.status === 200) {
         Alert.alert(
           "Sukces",
-          `Wymieniono ${exchangeAmount.toFixed(
-            2
-          )} ${sourceCurrency} na ${response.data.exchanged_amount.toFixed(
-            2
-          )} ${targetCurrency}`
+          `Wymieniono ${exchangeAmount.toFixed(2)} ${sourceCurrency} na ${response.data.exchanged_amount.toFixed(2)} ${targetCurrency}`
         );
-        navigation.navigate("App", { userId: userId });
+        navigation.navigate("App", { userId });
       }
     } catch (error) {
       console.error("Błąd podczas wymiany walut:", error);
@@ -78,33 +78,42 @@ export default function EkranWymiany({ route, navigation }) {
   };
 
   return (
-    <View style={GlobalStyles.container}>
-      <Text style={GlobalStyles.title}>Wymiana Walut</Text>
-
-      <TextInput
-        style={GlobalStyles.input}
-        placeholder={`Kwota w ${sourceCurrency}`}
-        value={amount}
-        onChangeText={(text) => setAmount(text)}
-        keyboardType="numeric"
-      />
-
-      <Text style={GlobalStyles.label}>Wybierz walutę docelową:</Text>
-      <Picker
-        selectedValue={targetCurrency}
-        style={GlobalStyles.picker}
-        onValueChange={(itemValue) => setTargetCurrency(itemValue)}
+    <DismissKeyboard>
+      <LinearGradient
+        colors={["#006466", "#4d194d"]}
+        style={GlobalStyles.gradientContainer}
       >
-        {rates.map((rate) => (
-          <Picker.Item
-            key={rate.code}
-            label={`${rate.currency} (${rate.code})`}
-            value={rate.code}
-          />
-        ))}
-      </Picker>
+        <View style={GlobalStyles.container}>
+          <Text style={GlobalStyles.title}>Wymiana Walut</Text>
 
-      <Button title="Wymień walutę" onPress={handleExchange} />
-    </View>
+          <TextInput
+            style={GlobalStyles.input}
+            placeholder={`Kwota w ${sourceCurrency}`}
+            value={amount}
+            onChangeText={(text) => setAmount(text)}
+            keyboardType="numeric"
+          />
+
+          <Text style={GlobalStyles.label}>Wybierz walutę docelową:</Text>
+          <Picker
+            selectedValue={targetCurrency}
+            style={GlobalStyles.picker}
+            onValueChange={(itemValue) => setTargetCurrency(itemValue)}
+          >
+            {rates.map((rate) => (
+              <Picker.Item
+                key={rate.code}
+                label={`${rate.currency} (${rate.code})`}
+                value={rate.code}
+              />
+            ))}
+          </Picker>
+
+          <TouchableOpacity style={GlobalStyles.button} onPress={handleExchange}>
+            <Text style={GlobalStyles.buttonText}>Wymień walutę</Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+    </DismissKeyboard>
   );
 }

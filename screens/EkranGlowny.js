@@ -4,6 +4,7 @@ import axios from "axios";
 import { backendURL } from "../services/config";
 import { useFocusEffect } from "@react-navigation/native";
 import GlobalStyles from "../styles/GlobalStyles";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function EkranGlowny({ route }) {
   const [balances, setBalances] = useState({});
@@ -43,13 +44,18 @@ export default function EkranGlowny({ route }) {
   };
 
   return (
-    <View style={GlobalStyles.container}>
-      <Text style={GlobalStyles.title}>Stan konta użytkownika</Text>
-      <FlatList
-        data={Object.entries(balances)}
-        renderItem={renderBalanceItem}
-        keyExtractor={([currency]) => currency}
-      />
-    </View>
+    <LinearGradient
+      colors={["#006466", "#4d194d"]}
+      style={GlobalStyles.gradientContainer}
+    >
+      <View style={GlobalStyles.container}>
+        <Text style={GlobalStyles.title}>Stan konta użytkownika</Text>
+        <FlatList
+          data={Object.entries(balances)}
+          renderItem={renderBalanceItem}
+          keyExtractor={([currency]) => currency}
+        />
+      </View>
+    </LinearGradient>
   );
 }

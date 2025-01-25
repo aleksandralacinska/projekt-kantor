@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, Alert, Keyboard, TouchableWithoutFeedback } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { axiosInstance } from "../services/config";
 import GlobalStyles from "../styles/GlobalStyles";
+import { LinearGradient } from "expo-linear-gradient";
+
+// Import nowego komponentu
+import DismissKeyboard from "../components/DismissKeyboard";
 
 export default function EkranRejestracji({ navigation }) {
   const [email, setEmail] = useState("");
@@ -49,53 +53,61 @@ export default function EkranRejestracji({ navigation }) {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={GlobalStyles.container}>
-        <Text style={GlobalStyles.title}>Rejestracja</Text>
+    <DismissKeyboard>
+      <LinearGradient
+        colors={["#006466", "#4d194d"]}
+        style={GlobalStyles.gradientContainer}
+      >
+        <View style={GlobalStyles.container}>
+          <Text style={GlobalStyles.title}>Rejestracja</Text>
 
-        <TextInput
-          style={GlobalStyles.input}
-          placeholder="Imię"
-          value={name}
-          onChangeText={(text) => setName(text)}
-        />
+          <TextInput
+            style={GlobalStyles.input}
+            placeholder="Imię"
+            value={name}
+            onChangeText={(text) => setName(text)}
+          />
 
-        <TextInput
-          style={GlobalStyles.input}
-          placeholder="Nazwisko"
-          value={surname}
-          onChangeText={(text) => setSurname(text)}
-        />
+          <TextInput
+            style={GlobalStyles.input}
+            placeholder="Nazwisko"
+            value={surname}
+            onChangeText={(text) => setSurname(text)}
+          />
 
-        <TextInput
-          style={GlobalStyles.input}
-          placeholder="E-mail"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
+          <TextInput
+            style={GlobalStyles.input}
+            placeholder="E-mail"
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
 
-        <TextInput
-          style={GlobalStyles.input}
-          placeholder="Hasło"
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-          secureTextEntry
-        />
+          <TextInput
+            style={GlobalStyles.input}
+            placeholder="Hasło"
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            secureTextEntry
+          />
 
-        <TextInput
-          style={GlobalStyles.input}
-          placeholder="Potwierdź hasło"
-          value={confirmPassword}
-          onChangeText={(text) => setConfirmPassword(text)}
-          secureTextEntry
-        />
+          <TextInput
+            style={GlobalStyles.input}
+            placeholder="Potwierdź hasło"
+            value={confirmPassword}
+            onChangeText={(text) => setConfirmPassword(text)}
+            secureTextEntry
+          />
 
-        <Button title="Zarejestruj się" onPress={handleRegister} />
-
-        <Button title="Powrót" onPress={() => navigation.goBack()} color="gray" />
-      </View>
-    </TouchableWithoutFeedback>
+          <TouchableOpacity style={GlobalStyles.button} onPress={handleRegister}>
+            <Text style={GlobalStyles.buttonText}>Zarejestruj się</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={GlobalStyles.backButton} onPress={() => navigation.goBack()}>
+            <Text style={GlobalStyles.backButtonText}>Powrót</Text>
+          </TouchableOpacity>        
+        </View>
+      </LinearGradient>
+    </DismissKeyboard>
   );
 }
