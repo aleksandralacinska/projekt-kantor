@@ -1,36 +1,34 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, FlatList, StyleSheet, Alert } from "react-native";
 import axios from "axios";
 import { backendURL } from "../services/config";
+import { useFocusEffect } from "@react-navigation/native"; // Importujemy useFocusEffect
 
 export default function EkranGlowny({ route }) {
   const [balances, setBalances] = useState({});
   const userId = route.params?.userId;
 
-  useEffect(() => {
-    console.log("Pobrany userId:", userId); // Debug: sprawdzenie ID użytkownika
-
-    if (!userId) {
-      console.error("Brak userId w parametrach!");
-      Alert.alert("Błąd", "Brak danych użytkownika.");
-      return;
+  const fetchBalances = async () => {
+    try {
+      const response = await axios.get(`${backendURL}/balance/`, {
+        params: { user_id: userId },
+      });
+      console.log("Odpowiedź z backendu (balance):", response.data);
+      setBalances(response.data.balances);
+    } catch (error) {
+      console.error("Błąd podczas ładowania sald:", error);
+      Alert.alert("Błąd", "Nie udało się pobrać sald.");
     }
+  };
 
-    const fetchBalances = async () => {
-      try {
-        const response = await axios.get(`${backendURL}/balance/`, {
-          params: { user_id: userId },
-        });
-        console.log("Odpowiedź z backendu (balance):", response.data); // Debug
-        setBalances(response.data.balances);
-      } catch (error) {
-        console.error("Błąd podczas ładowania sald:", error);
-        Alert.alert("Błąd", "Nie udało się pobrać sald.");
+  // Hook useFocusEffect uruchamia fetchBalances za każdym razem, gdy ekran jest w centrum uwagi
+  useFocusEffect(
+    useCallback(() => {
+      if (userId) {
+        fetchBalances();
       }
-    };
-
-    fetchBalances();
-  }, [userId]);
+    }, [userId])
+  );
 
   const renderBalanceItem = ({ item }) => {
     const [currency, balance] = item;

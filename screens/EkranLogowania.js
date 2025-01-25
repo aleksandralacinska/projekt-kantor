@@ -17,13 +17,16 @@ export default function EkranLogowania({ navigation }) {
       });
 
       if (response.status === 200) {
-        const userData = response.data.user; // Pobieramy dane użytkownika
-        console.log("Odpowiedź z backendu:", response.data); // Debug
-        console.log("ID użytkownika:", userData.id); // Debug
-        setCurrentUser(userData); // Ustawiamy użytkownika w kontekście
+        const userData = response.data.user;
+        console.log("Odpowiedź z backendu:", response.data);
+        console.log("Przekazywane userId:", userData.id); // Debug
 
-        // Przekazujemy userId do Strona Główna
-        navigation.navigate("App", { screen: "Strona Główna", params: { userId: userData.id } });
+        setCurrentUser(userData);
+
+        // Przekazywanie userId do TabNavigator
+        navigation.navigate("App", {
+          userId: userData.id, // Przekazanie userId
+        });
       }
     } catch (error) {
       console.error("Błąd logowania:", error);

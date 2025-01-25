@@ -1,19 +1,68 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import React, { useState } from "react";
+import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import axios from "axios";
+import { backendURL } from "../services/config";
 
-export default function EkranWplaty({ navigation }) {
-  const [amount, setAmount] = useState('');
+export default function EkranWplaty({ route, navigation }) {
+  const [amount, setAmount] = useState("");
+  const userId = route.params?.userId; // Pobieranie userId z parametrów
+  const currency = "PLN"; // Domyślna waluta
 
-  const handleDeposit = () => {
-    const depositAmount = parseFloat(amount);
+  // Walidacja userId
+  if (!userId) {
+    console.error("Nie znaleziono userId w parametrach!");
+    Alert.alert("Błąd", "Brak danych użytkownika. Zaloguj się ponownie.");
+    navigation.navigate("EkranLogowania"); // Powrót do logowania
+    return null;
+  }
+
+  const handleDeposit = async () => {
+    const depositAmount = parseFloat(amount); // Konwersja kwoty na liczbę
     if (isNaN(depositAmount) || depositAmount <= 0) {
-      Alert.alert('Błąd', 'Proszę wprowadzić poprawną kwotę');
+      Alert.alert("Błąd", "Proszę wprowadzić poprawną kwotę");
       return;
     }
-
-    Alert.alert('Sukces', `Twoje konto zostało zasilone o ${depositAmount.toFixed(2)} PLN`);
-    // Poprawiona nawigacja
-    navigation.navigate('App', { screen: 'Strona Główna' });
+  
+    console.log("Próba zasilenia konta:", {
+      user_id: userId,
+      currency: currency,
+      amount: depositAmount,
+    });
+  
+    try {
+      const response = await axios.post(`${backendURL}/deposit/`, {
+        user_id: userId,
+        currency: currency,
+        amount: depositAmount,
+      });
+  
+      if (response.status === 200) {
+        const newBalance = response.data.new_balance;
+        Alert.alert(
+          "Sukces",
+          `Twoje konto zostało zasilone. Nowe saldo: ${newBalance.toFixed(2)} PLN`
+        );
+  
+        // Przekazanie userId podczas nawigacji
+        navigation.navigate("App", {
+          userId: userId,
+        });
+      }
+    } catch (error) {
+      console.error("Błąd podczas zasilenia konta:", error);
+  
+      if (error.response) {
+        Alert.alert(
+          "Błąd",
+          error.response.data?.detail || "Nie udało się zasilić konta"
+        );
+      } else {
+        Alert.alert(
+          "Błąd",
+          "Wystąpił problem z połączeniem. Sprawdź swoje połączenie internetowe."
+        );
+      }
+    }
   };
 
   return (
@@ -38,19 +87,19 @@ export default function EkranWplaty({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 24,
   },
   input: {
     height: 40,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
     marginBottom: 16,
