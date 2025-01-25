@@ -1,26 +1,30 @@
 import React, { useState, useContext } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import axios from "axios";
+import { backendURL } from "../services/config";
 import { UserContext } from "../services/UserContext";
 
 export default function EkranLogowania({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { users } = useContext(UserContext);
+  const { setCurrentUser } = useContext(UserContext);
 
-  const handleLogin = () => {
-    if (!users || users.length === 0) {
-      Alert.alert("Błąd", "Brak zarejestrowanych użytkowników");
-      return;
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post(`${backendURL}/login/`, {
+        email,
+        password,
+      });
+
+      if (response.status === 200) {
+        setCurrentUser(response.data); // Ustaw dane zalogowanego użytkownika w kontekście
+        Alert.alert("Sukces", "Zalogowano pomyślnie");
+        navigation.navigate("App", { screen: "Strona Główna" });
+      }
+    } catch (error) {
+      console.error("Błąd logowania:", error);
+      Alert.alert("Błąd", error.response?.data?.detail || "Nie udało się zalogować");
     }
-
-    const user = users.find((user) => user.email === email && user.password === password);
-    if (!user) {
-      Alert.alert("Błąd", "Nieprawidłowy e-mail lub hasło");
-      return;
-    }
-
-    Alert.alert("Sukces", "Zalogowano pomyślnie");
-    navigation.navigate("App", { screen: "Strona Główna" });
   };
 
   return (
