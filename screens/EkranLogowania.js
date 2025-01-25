@@ -17,9 +17,13 @@ export default function EkranLogowania({ navigation }) {
       });
 
       if (response.status === 200) {
-        setCurrentUser(response.data); // Ustaw dane zalogowanego użytkownika w kontekście
-        Alert.alert("Sukces", "Zalogowano pomyślnie");
-        navigation.navigate("App", { screen: "Strona Główna" });
+        const userData = response.data.user; // Pobieramy dane użytkownika
+        console.log("Odpowiedź z backendu:", response.data); // Debug
+        console.log("ID użytkownika:", userData.id); // Debug
+        setCurrentUser(userData); // Ustawiamy użytkownika w kontekście
+
+        // Przekazujemy userId do Strona Główna
+        navigation.navigate("App", { screen: "Strona Główna", params: { userId: userData.id } });
       }
     } catch (error) {
       console.error("Błąd logowania:", error);

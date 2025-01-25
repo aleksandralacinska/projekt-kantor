@@ -18,7 +18,7 @@ app = FastAPI()
 # Konfiguracja CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Możesz dodać konkretne adresy, np. ["http://192.168.1.15:19006"]
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,13 +47,17 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
     db_user = get_user_by_email(db, email=user.email)
     if not db_user or not pwd_context.verify(user.password, db_user.password_hash):
         raise HTTPException(status_code=400, detail="Invalid email or password")
-    return {"message": "Login successful", "user": {"email": db_user.email, "name": db_user.name}}
+    return {
+        "message": "Login successful",
+        "user": {
+            "id": db_user.id,
+            "email": db_user.email,
+            "name": db_user.name,
+        },
+    }
 
 @app.get("/balance/")
 def get_balance(user_id: int = Query(...), db: Session = Depends(get_db)):
-    """
-    Endpoint do pobierania salda użytkownika.
-    """
     balances = get_user_balances(db, user_id=user_id)
     if balances is None:
         raise HTTPException(status_code=404, detail="User not found or no balances")

@@ -5,14 +5,23 @@ import { backendURL } from "../services/config";
 
 export default function EkranGlowny({ route }) {
   const [balances, setBalances] = useState({});
-  const userId = route.params?.userId; // Pobierz userId przekazany podczas logowania
+  const userId = route.params?.userId;
 
   useEffect(() => {
+    console.log("Pobrany userId:", userId); // Debug: sprawdzenie ID użytkownika
+
+    if (!userId) {
+      console.error("Brak userId w parametrach!");
+      Alert.alert("Błąd", "Brak danych użytkownika.");
+      return;
+    }
+
     const fetchBalances = async () => {
       try {
         const response = await axios.get(`${backendURL}/balance/`, {
-          params: { user_id: userId }, // Wysyłamy user_id jako parametr
+          params: { user_id: userId },
         });
+        console.log("Odpowiedź z backendu (balance):", response.data); // Debug
         setBalances(response.data.balances);
       } catch (error) {
         console.error("Błąd podczas ładowania sald:", error);
@@ -20,9 +29,7 @@ export default function EkranGlowny({ route }) {
       }
     };
 
-    if (userId) {
-      fetchBalances();
-    }
+    fetchBalances();
   }, [userId]);
 
   const renderBalanceItem = ({ item }) => {
@@ -41,7 +48,7 @@ export default function EkranGlowny({ route }) {
     <View style={styles.container}>
       <Text style={styles.title}>Stan konta użytkownika</Text>
       <FlatList
-        data={Object.entries(balances)}
+        data={Object.entries(balances)} // Konwersja obiektu na tablicę
         renderItem={renderBalanceItem}
         keyExtractor={([currency]) => currency}
       />
