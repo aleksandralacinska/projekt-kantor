@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, Alert } from "react-native";
+import { View, Text, TextInput, Button, Alert, Keyboard, TouchableWithoutFeedback } from "react-native";
 import { axiosInstance } from "../services/config";
 import GlobalStyles from "../styles/GlobalStyles";
 
@@ -49,51 +49,53 @@ export default function EkranRejestracji({ navigation }) {
   };
 
   return (
-    <View style={GlobalStyles.container}>
-      <Text style={GlobalStyles.title}>Rejestracja</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={GlobalStyles.container}>
+        <Text style={GlobalStyles.title}>Rejestracja</Text>
 
-      <TextInput
-        style={GlobalStyles.input}
-        placeholder="Imię"
-        value={name}
-        onChangeText={(text) => setName(text)}
-      />
+        <TextInput
+          style={GlobalStyles.input}
+          placeholder="Imię"
+          value={name}
+          onChangeText={(text) => setName(text)}
+        />
 
-      <TextInput
-        style={GlobalStyles.input}
-        placeholder="Nazwisko"
-        value={surname}
-        onChangeText={(text) => setSurname(text)}
-      />
+        <TextInput
+          style={GlobalStyles.input}
+          placeholder="Nazwisko"
+          value={surname}
+          onChangeText={(text) => setSurname(text)}
+        />
 
-      <TextInput
-        style={GlobalStyles.input}
-        placeholder="E-mail"
-        value={email}
-        onChangeText={(text) => setEmail(text)}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
+        <TextInput
+          style={GlobalStyles.input}
+          placeholder="E-mail"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
 
-      <TextInput
-        style={GlobalStyles.input}
-        placeholder="Hasło"
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-        secureTextEntry
-      />
+        <TextInput
+          style={GlobalStyles.input}
+          placeholder="Hasło"
+          value={password}
+          onChangeText={(text) => setPassword(text)}
+          secureTextEntry
+        />
 
-      <TextInput
-        style={GlobalStyles.input}
-        placeholder="Potwierdź hasło"
-        value={confirmPassword}
-        onChangeText={(text) => setConfirmPassword(text)}
-        secureTextEntry
-      />
+        <TextInput
+          style={GlobalStyles.input}
+          placeholder="Potwierdź hasło"
+          value={confirmPassword}
+          onChangeText={(text) => setConfirmPassword(text)}
+          secureTextEntry
+        />
 
-      <Button title="Zarejestruj się" onPress={handleRegister} />
+        <Button title="Zarejestruj się" onPress={handleRegister} />
 
-      <Button title="Powrót" onPress={() => navigation.goBack()} color="gray" />
-    </View>
+        <Button title="Powrót" onPress={() => navigation.goBack()} color="gray" />
+      </View>
+    </TouchableWithoutFeedback>
   );
 }

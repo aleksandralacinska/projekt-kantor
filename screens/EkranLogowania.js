@@ -1,9 +1,10 @@
 import React, { useState, useContext } from "react";
-import { View, Text, TextInput, Button, Alert } from "react-native";
+import { View, Text, TextInput, Button, Alert, Keyboard, TouchableWithoutFeedback } from "react-native";
 import axios from "axios";
 import { backendURL } from "../services/config";
 import { UserContext } from "../services/UserContext";
 import GlobalStyles from "../styles/GlobalStyles";
+
 
 export default function EkranLogowania({ navigation }) {
   const [email, setEmail] = useState("");
@@ -37,37 +38,39 @@ export default function EkranLogowania({ navigation }) {
   };
 
   return (
-    <View style={GlobalStyles.container}>
-      <Text style={GlobalStyles.title}>Logowanie</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={GlobalStyles.container}>
+        <Text style={GlobalStyles.title}>Logowanie</Text>
 
-      <TextInput
-        style={GlobalStyles.input}
-        placeholder="E-mail"
-        value={email}
-        onChangeText={(text) => setEmail(text)}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
+        <TextInput
+          style={GlobalStyles.input}
+          placeholder="E-mail"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
 
-      <TextInput
-        style={GlobalStyles.input}
-        placeholder="Hasło"
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-        secureTextEntry
-      />
+        <TextInput
+          style={GlobalStyles.input}
+          placeholder="Hasło"
+          value={password}
+          onChangeText={(text) => setPassword(text)}
+          secureTextEntry
+        />
 
-      <Button title="Zaloguj się" onPress={handleLogin} />
+        <Button title="Zaloguj się" onPress={handleLogin} />
 
-      <Text style={GlobalStyles.registerText}>
-        Nie masz konta?{" "}
-        <Text
-          style={GlobalStyles.registerLink}
-          onPress={() => navigation.navigate("EkranRejestracji")}
-        >
-          Zarejestruj się
+        <Text style={GlobalStyles.registerText}>
+          Nie masz konta?{" "}
+          <Text
+            style={GlobalStyles.registerLink}
+            onPress={() => navigation.navigate("EkranRejestracji")}
+          >
+            Zarejestruj się
+          </Text>
         </Text>
-      </Text>
-    </View>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }

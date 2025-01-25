@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, Alert } from "react-native";
+import { View, Text, TextInput, Button, Alert, Keyboard, TouchableWithoutFeedback } from "react-native";
 import axios from "axios";
 import { backendURL } from "../services/config";
 import GlobalStyles from "../styles/GlobalStyles";
@@ -64,20 +64,22 @@ export default function EkranWplaty({ route, navigation }) {
   };
 
   return (
-    <View style={GlobalStyles.container}>
-      <Text style={GlobalStyles.title}>Zasilenie Konta</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={GlobalStyles.container}>
+        <Text style={GlobalStyles.title}>Zasilenie Konta</Text>
 
-      <TextInput
-        style={GlobalStyles.input}
-        placeholder="Wprowadź kwotę"
-        value={amount}
-        onChangeText={(text) => setAmount(text)}
-        keyboardType="numeric"
-      />
+        <TextInput
+          style={GlobalStyles.input}
+          placeholder="Wprowadź kwotę"
+          value={amount}
+          onChangeText={(text) => setAmount(text)}
+          keyboardType="numeric"
+        />
 
-      <Button title="Zasil konto" onPress={handleDeposit} />
+        <Button title="Zasil konto" onPress={handleDeposit} />
 
-      <Button title="Powrót" onPress={() => navigation.goBack()} color="gray" />
-    </View>
+        <Button title="Powrót" onPress={() => navigation.goBack()} color="gray" />
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
