@@ -10,7 +10,7 @@ from backend.database import engine, SessionLocal
 from passlib.context import CryptContext
 from backend import models
 from decimal import Decimal
-
+import requests
 # Tworzenie tabel w bazie danych
 Base.metadata.create_all(bind=engine)
 
@@ -95,3 +95,95 @@ def deposit_funds(request: DepositRequest, db: Session = Depends(get_db)):
     db.refresh(account)
 
     return {"message": "Saldo zostało zaktualizowane", "new_balance": float(account.balance)}
+
+class ExchangeRequest(BaseModel):
+    user_id: int
+    source_currency: str
+    target_currency: str
+    amount: float
+
+@app.post("/exchange/")
+def exchange_currency(request: ExchangeRequest, db: Session = Depends(get_db)):
+    """
+    Endpoint obsługujący wymianę walut.
+    """
+    print(f"Żądanie wymiany: {request.dict()}")
+
+    # Pobierz kursy z API NBP
+    try:
+        response = requests.get("https://api.nbp.pl/api/exchangerates/tables/A?format=json")
+        response.raise_for_status()
+        rates = {rate["code"].upper(): Decimal(rate["mid"]) for rate in response.json()[0]["rates"]}
+        rates["PLN"] = Decimal("1.0")  # Dodanie PLN jako waluty bazowej
+        print(f"Kursy walut: {rates}")
+    except requests.RequestException:
+        raise HTTPException(status_code=500, detail="Błąd podczas pobierania kursów walut z NBP")
+
+    # Walidacja walut
+    source_currency = request.source_currency.upper()
+    target_currency = request.target_currency.upper()
+
+    if source_currency not in rates:
+        print(f"Nieobsługiwana waluta źródłowa: {source_currency}")
+        raise HTTPException(status_code=400, detail="Nieobsługiwana waluta źródłowa")
+
+    if target_currency not in rates:
+        print(f"Nieobsługiwana waluta docelowa: {target_currency}")
+        raise HTTPException(status_code=400, detail="Nieobsługiwana waluta docelowa")
+
+    # Pobierz konta użytkownika dla obu walut
+    source_account = db.query(Account).filter(
+        Account.user_id == request.user_id, Account.currency == source_currency
+    ).first()
+
+    if not source_account:
+        print(f"Nie znaleziono konta dla waluty źródłowej: {source_currency}")
+        raise HTTPException(status_code=404, detail="Nie znaleziono konta dla waluty źródłowej")
+
+    # Pobierz lub utwórz konto docelowe
+    target_account = db.query(Account).filter(
+        Account.user_id == request.user_id, Account.currency == target_currency
+    ).first()
+
+    if not target_account:
+        print(f"Tworzenie nowego konta dla waluty docelowej: {target_currency}")
+        target_account = Account(
+            user_id=request.user_id,
+            currency=target_currency,
+            balance=Decimal("0.0"),
+        )
+        db.add(target_account)
+        db.commit()
+        db.refresh(target_account)
+
+    # Sprawdź, czy użytkownik ma wystarczające środki
+    source_amount = Decimal(request.amount)
+    if source_account.balance < source_amount:
+        print("Niewystarczające środki na koncie")
+        raise HTTPException(status_code=400, detail="Niewystarczające środki na koncie")
+
+    # Oblicz ilość waluty docelowej
+    source_rate = rates[source_currency]
+    target_rate = rates[target_currency]
+    conversion_rate = source_rate / target_rate  # Przelicznik kursowy
+    exchanged_amount = (source_amount / conversion_rate).quantize(Decimal("0.01"))  # Kwota docelowa zaokrąglona do 2 miejsc
+    print(f"Przeliczona kwota: {exchanged_amount} {target_currency} przy kursie {conversion_rate}")
+
+    # Zaktualizuj salda użytkownika
+    source_account.balance -= source_amount.quantize(Decimal("0.01"))  # Zaokrąglenie dla salda
+    target_account.balance += exchanged_amount
+
+    db.commit()
+    db.refresh(source_account)
+    db.refresh(target_account)
+
+    print(f"Nowe saldo źródłowe: {source_account.balance}")
+    print(f"Nowe saldo docelowe: {target_account.balance}")
+
+    return {
+        "message": "Wymiana zakończona pomyślnie",
+        "source_balance": float(source_account.balance),
+        "target_balance": float(target_account.balance),
+        "conversion_rate": float(conversion_rate),
+        "exchanged_amount": float(exchanged_amount),
+    }
