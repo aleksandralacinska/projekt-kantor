@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from backend import crud
 from backend.models import Account, Base
 from backend.schemes import UserCreate, UserLogin
-from backend.crud import get_user_balances, get_user_by_email, create_user
+from backend.crud import create_transaction, get_user_balances, get_user_by_email, create_user
 from backend.database import engine, SessionLocal
 from passlib.context import CryptContext
 from backend import models
@@ -36,6 +36,22 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def fetch_exchange_rates_from_nbp():
+    """
+    Pobiera kursy wymiany walut z API NBP.
+    """
+    try:
+        response = requests.get("https://api.nbp.pl/api/exchangerates/tables/A?format=json")
+        response.raise_for_status()
+        data = response.json()
+
+        # Przetwarzanie danych: konwertujemy listę kursów na słownik
+        rates = {rate["code"]: Decimal(rate["mid"]) for rate in data[0]["rates"]}
+        rates["PLN"] = Decimal("1.0")  # Dodanie PLN jako waluty bazowej
+        return rates
+    except requests.RequestException as e:
+        raise Exception("Błąd podczas pobierania kursów z API NBP: " + str(e))
 
 @app.post("/register/")
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
@@ -73,12 +89,7 @@ class DepositRequest(BaseModel):
 
 @app.post("/deposit/")
 def deposit_funds(request: DepositRequest, db: Session = Depends(get_db)):
-    """
-    Endpoint obsługujący zasilenie konta użytkownika.
-    """
-    # Debugowanie danych wejściowych
-    print(f"ODEBRANE DANE: {request.dict()}")
-
+    # Walidacja danych
     if request.amount <= 0:
         raise HTTPException(status_code=400, detail="Kwota zasilenia musi być większa od 0")
 
@@ -89,10 +100,19 @@ def deposit_funds(request: DepositRequest, db: Session = Depends(get_db)):
     if not account:
         raise HTTPException(status_code=404, detail="Konto nie zostało znalezione")
 
-    # Konwersja amount na Decimal
+    # Aktualizacja salda
     account.balance += Decimal(request.amount)
     db.commit()
     db.refresh(account)
+
+    # Dodanie transakcji
+    create_transaction(
+        db=db,
+        user_id=request.user_id,
+        type="deposit",
+        amount=request.amount,
+        currency=request.currency
+    )
 
     return {"message": "Saldo zostało zaktualizowane", "new_balance": float(account.balance)}
 
@@ -104,86 +124,75 @@ class ExchangeRequest(BaseModel):
 
 @app.post("/exchange/")
 def exchange_currency(request: ExchangeRequest, db: Session = Depends(get_db)):
-    """
-    Endpoint obsługujący wymianę walut.
-    """
-    print(f"Żądanie wymiany: {request.dict()}")
-
-    # Pobierz kursy z API NBP
-    try:
-        response = requests.get("https://api.nbp.pl/api/exchangerates/tables/A?format=json")
-        response.raise_for_status()
-        rates = {rate["code"].upper(): Decimal(rate["mid"]) for rate in response.json()[0]["rates"]}
-        rates["PLN"] = Decimal("1.0")  # Dodanie PLN jako waluty bazowej
-        print(f"Kursy walut: {rates}")
-    except requests.RequestException:
-        raise HTTPException(status_code=500, detail="Błąd podczas pobierania kursów walut z NBP")
+    # Pobranie kursów
+    rates = fetch_exchange_rates_from_nbp()
 
     # Walidacja walut
     source_currency = request.source_currency.upper()
     target_currency = request.target_currency.upper()
+    if source_currency not in rates or target_currency not in rates:
+        raise HTTPException(status_code=400, detail="Nieobsługiwana waluta")
 
-    if source_currency not in rates:
-        print(f"Nieobsługiwana waluta źródłowa: {source_currency}")
-        raise HTTPException(status_code=400, detail="Nieobsługiwana waluta źródłowa")
-
-    if target_currency not in rates:
-        print(f"Nieobsługiwana waluta docelowa: {target_currency}")
-        raise HTTPException(status_code=400, detail="Nieobsługiwana waluta docelowa")
-
-    # Pobierz konta użytkownika dla obu walut
+    # Pobranie kont użytkownika
     source_account = db.query(Account).filter(
         Account.user_id == request.user_id, Account.currency == source_currency
     ).first()
-
-    if not source_account:
-        print(f"Nie znaleziono konta dla waluty źródłowej: {source_currency}")
-        raise HTTPException(status_code=404, detail="Nie znaleziono konta dla waluty źródłowej")
-
-    # Pobierz lub utwórz konto docelowe
     target_account = db.query(Account).filter(
         Account.user_id == request.user_id, Account.currency == target_currency
     ).first()
 
-    if not target_account:
-        print(f"Tworzenie nowego konta dla waluty docelowej: {target_currency}")
-        target_account = Account(
-            user_id=request.user_id,
-            currency=target_currency,
-            balance=Decimal("0.0"),
-        )
-        db.add(target_account)
-        db.commit()
-        db.refresh(target_account)
-
-    # Sprawdź, czy użytkownik ma wystarczające środki
-    source_amount = Decimal(request.amount)
-    if source_account.balance < source_amount:
-        print("Niewystarczające środki na koncie")
-        raise HTTPException(status_code=400, detail="Niewystarczające środki na koncie")
-
-    # Oblicz ilość waluty docelowej
+    # Aktualizacja sald
     source_rate = rates[source_currency]
     target_rate = rates[target_currency]
-    conversion_rate = source_rate / target_rate  # Przelicznik kursowy
-    exchanged_amount = (source_amount / conversion_rate).quantize(Decimal("0.01"))  # Kwota docelowa zaokrąglona do 2 miejsc
-    print(f"Przeliczona kwota: {exchanged_amount} {target_currency} przy kursie {conversion_rate}")
+    exchanged_amount = Decimal(request.amount) * (source_rate / target_rate)
 
-    # Zaktualizuj salda użytkownika
-    source_account.balance -= source_amount.quantize(Decimal("0.01"))  # Zaokrąglenie dla salda
+    source_account.balance -= Decimal(request.amount)
     target_account.balance += exchanged_amount
-
     db.commit()
     db.refresh(source_account)
     db.refresh(target_account)
 
-    print(f"Nowe saldo źródłowe: {source_account.balance}")
-    print(f"Nowe saldo docelowe: {target_account.balance}")
+    # Dodanie transakcji
+    create_transaction(
+        db=db,
+        user_id=request.user_id,
+        type="exchange",
+        amount=request.amount,
+        currency=source_currency,
+        target_currency=target_currency,
+        exchange_rate=source_rate / target_rate,
+    )
 
-    return {
-        "message": "Wymiana zakończona pomyślnie",
-        "source_balance": float(source_account.balance),
-        "target_balance": float(target_account.balance),
-        "conversion_rate": float(conversion_rate),
-        "exchanged_amount": float(exchanged_amount),
-    }
+    return {"message": "Wymiana zakończona", "exchanged_amount": float(exchanged_amount)}
+
+@app.post("/transaction/")
+def add_transaction(
+    user_id: int,
+    type: str,
+    amount: float,
+    currency: str,
+    target_currency: str = None,
+    exchange_rate: float = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Endpoint do dodawania transakcji.
+    """
+    if type not in ["deposit", "exchange"]:
+        raise HTTPException(status_code=400, detail="Nieobsługiwany typ transakcji.")
+
+    if amount <= 0:
+        raise HTTPException(status_code=400, detail="Kwota musi być większa od 0.")
+
+    # Utwórz transakcję
+    transaction = create_transaction(
+        db,
+        user_id=user_id,
+        type=type,
+        amount=amount,
+        currency=currency,
+        target_currency=target_currency,
+        exchange_rate=exchange_rate,
+    )
+
+    return {"message": "Transakcja dodana pomyślnie", "transaction": transaction}
