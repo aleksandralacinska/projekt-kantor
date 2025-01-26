@@ -108,13 +108,13 @@ export default function AppNavigator() {
         <Stack.Screen
           name="EkranLogowania"
           component={EkranLogowania}
-          options={{ title: "Logowanie" }}
+          options={{ title: "Witaj w aplikacji Kantor :)" }}
         />
         {/* Ekran rejestracji */}
         <Stack.Screen
           name="EkranRejestracji"
           component={EkranRejestracji}
-          options={{ title: "Rejestracja" }}
+          options={{ title: "Witaj w aplikacji Kantor :)" }}
         />
         {/* Główna aplikacja */}
         <Stack.Screen

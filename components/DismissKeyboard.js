@@ -1,4 +1,3 @@
-// components/DismissKeyboard.js
 import React from "react";
 import { Keyboard, TouchableWithoutFeedback, Platform } from "react-native";
 
