@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {View, Text, Picker, ActivityIndicator, Alert, Dimensions, ScrollView, StyleSheet } from "react-native";
+import {View, Text, ActivityIndicator, Alert, Dimensions, ScrollView, StyleSheet } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import axios from "axios";
 import GlobalStyles from "../styles/GlobalStyles";
 import { LinearGradient } from "expo-linear-gradient";
-
+import { Picker } from '@react-native-picker/picker';
 const screenWidth = Dimensions.get("window").width;
 
 // Słownik krótkich nazw miesięcy
