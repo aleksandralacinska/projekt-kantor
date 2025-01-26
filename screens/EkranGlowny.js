@@ -26,7 +26,7 @@ export default function EkranGlowny({ route }) {
   useFocusEffect(
     useCallback(() => {
       if (userId) {
-        fetchBalances();
+        fetchBalances(); // Pobieranie sald użytkownika
       }
     }, [userId])
   );

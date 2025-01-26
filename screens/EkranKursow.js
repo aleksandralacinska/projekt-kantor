@@ -10,7 +10,7 @@ export default function EkranKursow({ navigation }) {
 
   const fetchExchangeRates = async () => {
     try {
-      const response = await axios.get(
+      const response = await axios.get( //zapytanie GET do API NBP, aby pobrać tabelę kursów
         "https://api.nbp.pl/api/exchangerates/tables/A?format=json"
       );
       console.log("Otrzymane dane z API NBP:", response.data);
@@ -28,9 +28,10 @@ export default function EkranKursow({ navigation }) {
   };
 
   useEffect(() => {
-    fetchExchangeRates();
+    fetchExchangeRates(); // Pobranie danych kursów walut
   }, []);
 
+  // pojedynczy element kursu waluty
   const renderRateItem = ({ item }) => (
     <View style={GlobalStyles.rateItem}>
       <Text style={GlobalStyles.currency}>
@@ -56,6 +57,7 @@ export default function EkranKursow({ navigation }) {
             keyExtractor={(item) => item.code}
           />
         )}
+        {/* Przycisk nawigujący do ekranu z historią kursów */}
         <TouchableOpacity
           style={GlobalStyles.button}
           onPress={() => {

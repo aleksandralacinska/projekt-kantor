@@ -5,7 +5,6 @@ import { backendURL } from "../services/config";
 import GlobalStyles from "../styles/GlobalStyles";
 import { LinearGradient } from "expo-linear-gradient";
 
-// Import nowego komponentu
 import DismissKeyboard from "../components/DismissKeyboard";
 
 export default function EkranWplaty({ route, navigation }) {
@@ -20,6 +19,7 @@ export default function EkranWplaty({ route, navigation }) {
     return null;
   }
 
+  // obsługa wpłaty  
   const handleDeposit = async () => {
     const depositAmount = parseFloat(amount);
     if (isNaN(depositAmount) || depositAmount <= 0) {
@@ -82,10 +82,12 @@ export default function EkranWplaty({ route, navigation }) {
             keyboardType="numeric"
           />
 
+          {/* Przycisk realizujący proces wpłaty */}
           <TouchableOpacity style={GlobalStyles.button} onPress={handleDeposit}>
             <Text style={GlobalStyles.buttonText}>Zasil konto</Text>
           </TouchableOpacity>
-
+          
+          {/* Przycisk powrotu */}
           <TouchableOpacity style={GlobalStyles.backButton} onPress={() => navigation.goBack()}>
             <Text style={GlobalStyles.backButtonText}>Powrót</Text>
           </TouchableOpacity>

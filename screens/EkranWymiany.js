@@ -6,7 +6,6 @@ import { backendURL } from "../services/config";
 import GlobalStyles from "../styles/GlobalStyles";
 import { LinearGradient } from "expo-linear-gradient";
 
-// Import nowego komponentu
 import DismissKeyboard from "../components/DismissKeyboard";
 
 export default function EkranWymiany({ route, navigation }) {
@@ -16,6 +15,7 @@ export default function EkranWymiany({ route, navigation }) {
   const [rates, setRates] = useState([]);
   const sourceCurrency = "PLN";
 
+  // pobieranie kursów walut
   const fetchExchangeRates = async () => {
     try {
       const response = await axios.get(
@@ -39,6 +39,7 @@ export default function EkranWymiany({ route, navigation }) {
     fetchExchangeRates();
   }, []);
 
+  // obsługa wymiany waluty
   const handleExchange = async () => {
     const exchangeAmount = parseFloat(amount);
     if (isNaN(exchangeAmount) || exchangeAmount <= 0) {
@@ -95,6 +96,7 @@ export default function EkranWymiany({ route, navigation }) {
           />
 
           <Text style={GlobalStyles.label}>Wybierz walutę docelową:</Text>
+          {/* Lista rozwijalna z dostępnymi walutami */}
           <Picker
             selectedValue={targetCurrency}
             style={GlobalStyles.picker}
@@ -108,7 +110,8 @@ export default function EkranWymiany({ route, navigation }) {
               />
             ))}
           </Picker>
-
+          
+          {/* Przycisk realizujący wymianę walut */}
           <TouchableOpacity style={GlobalStyles.button} onPress={handleExchange}>
             <Text style={GlobalStyles.buttonText}>Wymień walutę</Text>
           </TouchableOpacity>
