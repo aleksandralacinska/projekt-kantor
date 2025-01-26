@@ -4,7 +4,6 @@ import { axiosInstance } from "../services/config";
 import GlobalStyles from "../styles/GlobalStyles";
 import { LinearGradient } from "expo-linear-gradient";
 
-// Import nowego komponentu
 import DismissKeyboard from "../components/DismissKeyboard";
 
 export default function EkranRejestracji({ navigation }) {
@@ -14,6 +13,7 @@ export default function EkranRejestracji({ navigation }) {
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
 
+  // obsługa rejestracji
   const handleRegister = async () => {
     if (!email || !password || !confirmPassword || !name || !surname) {
       Alert.alert("Błąd", "Proszę wypełnić wszystkie pola");
@@ -61,6 +61,8 @@ export default function EkranRejestracji({ navigation }) {
         <View style={GlobalStyles.container}>
           <Text style={GlobalStyles.title}>Rejestracja</Text>
 
+          {/* Pola tekstowe do wprowadzania danych */}
+
           <TextInput
             style={GlobalStyles.input}
             placeholder="Imię"
@@ -100,9 +102,12 @@ export default function EkranRejestracji({ navigation }) {
             secureTextEntry
           />
 
+          {/* Przycisk rejestracji */}
           <TouchableOpacity style={GlobalStyles.button} onPress={handleRegister}>
             <Text style={GlobalStyles.buttonText}>Zarejestruj się</Text>
           </TouchableOpacity>
+          
+          {/* Przycisk powrotu */}
           <TouchableOpacity style={GlobalStyles.backButton} onPress={() => navigation.goBack()}>
             <Text style={GlobalStyles.backButtonText}>Powrót</Text>
           </TouchableOpacity>        

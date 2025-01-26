@@ -11,7 +11,7 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return null; // ekran ładowania do dodania
+    return null;
   }
 
   // Globalne ustawienie stylu tekstu

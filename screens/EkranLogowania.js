@@ -6,7 +6,6 @@ import { UserContext } from "../services/UserContext";
 import GlobalStyles from "../styles/GlobalStyles";
 import { LinearGradient } from "expo-linear-gradient";
 
-// Import nowego komponentu
 import DismissKeyboard from "../components/DismissKeyboard";
 
 export default function EkranLogowania({ navigation }) {
@@ -14,6 +13,7 @@ export default function EkranLogowania({ navigation }) {
   const [password, setPassword] = useState("");
   const { setCurrentUser } = useContext(UserContext);
 
+  // obsługa logowania
   const handleLogin = async () => {
     try {
       const response = await axios.post(`${backendURL}/login/`, {
@@ -53,7 +53,7 @@ export default function EkranLogowania({ navigation }) {
             placeholder="E-mail"
             value={email}
             onChangeText={(text) => setEmail(text)}
-            keyboardType="email-address"
+            keyboardType="email-address" // klawiatura z @
             autoCapitalize="none"
           />
 
@@ -62,12 +62,15 @@ export default function EkranLogowania({ navigation }) {
             placeholder="Hasło"
             value={password}
             onChangeText={(text) => setPassword(text)}
-            secureTextEntry
+            secureTextEntry // ukrycie hasła podczas wpisywania
           />
 
+          {/* Przycisk logowania */}
           <TouchableOpacity style={GlobalStyles.button} onPress={handleLogin}>
             <Text style={GlobalStyles.buttonText}>Zaloguj się</Text>
           </TouchableOpacity>
+
+          {/* Odnośnik do ekranu rejestracji */}
           <Text style={GlobalStyles.registerText}>
             Nie masz konta?{" "}
             <Text
