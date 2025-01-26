@@ -14,17 +14,17 @@ export default StyleSheet.create({
     padding: 16,
   },
 
-  // Duży tytuł używany na wielu ekranach
+  // Duży tytuł używany na górze ekranu
   title: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 16,
     fontFamily: "MontserratBold",
-    color: "#ffffff", // Jasny tekst na ciemnym tle
+    color: "#ffffff",
   },
 
-  // Uniwersalne pole tekstowe
+  // Uniwersalne pole tekstowe input
   input: {
     height: 40,
     borderColor: "#ccc",
@@ -33,8 +33,8 @@ export default StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 8,
     fontFamily: "Montserrat",
-    backgroundColor: "#ffffff", // Jasne pole na ciemnym tle
-    color: "#000000", // Ciemny tekst w polu tekstowym
+    backgroundColor: "#ffffff",
+    color: "#000000",
   },
 
   // Styl dla etykiet tekstowych w formularzach
@@ -53,38 +53,38 @@ export default StyleSheet.create({
 
   // Przyciski
   button: {
-    backgroundColor: "#1E90FF", // Kolor tła przycisku
+    backgroundColor: "#1E90FF",
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 16, // Zaokrąglone narożniki
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
-    width: screenWidth * 0.6, // Przyciski zajmują 80% szerokości ekranu
-    alignSelf: "center", // Wycentrowanie przycisku
-    marginVertical: 10, // Dodanie odstępów między przyciskami
+    width: screenWidth * 0.6,
+    alignSelf: "center",
+    marginVertical: 10,
   },
   buttonText: {
-    color: "#ffffff", // Kolor tekstu
+    color: "#ffffff",
     fontSize: 16,
     fontWeight: "600",
     fontFamily: "MontserratBold",
   },
 
   backButton: {
-    backgroundColor: "transparent", // Przezroczyste tło
-    borderColor: "#ffffff", // Biała obramówka
-    borderWidth: 1, // Grubość obramowania
-    borderRadius: 16, // Zaokrąglone narożniki
+    backgroundColor: "transparent",
+    borderColor: "#ffffff",
+    borderWidth: 1,
+    borderRadius: 16,
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignItems: "center",
     justifyContent: "center",
-    width: screenWidth * 0.6, // Przyciski zajmują 80% szerokości ekranu
-    alignSelf: "center", // Wycentrowanie przycisku
-    marginVertical: 8, // Dodanie odstępów między przyciskami
+    width: screenWidth * 0.6,
+    alignSelf: "center",
+    marginVertical: 8,
   },
   backButtonText: {
-    color: "#ffffff", // Biały tekst
+    color: "#ffffff",
     fontSize: 16,
     fontWeight: "600",
     fontFamily: "MontserratBold",
@@ -128,11 +128,11 @@ export default StyleSheet.create({
   registerText: {
     marginTop: 16,
     textAlign: "center",
-    color: "#cccccc", // Jasny tekst na ciemnym tle
+    color: "#cccccc",
     fontFamily: "Montserrat",
   },
   registerLink: {
-    color: "#00d4ff", // Turkusowy odcień dla linków
+    color: "#00d4ff",
     fontWeight: "bold",
     fontFamily: "MontserratBold",
   },
