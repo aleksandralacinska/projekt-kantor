@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, ActivityIndicator, Alert } from "react-native";
+import { View, Text, FlatList, ActivityIndicator, Alert, TouchableOpacity } from "react-native";
 import axios from "axios";
 import GlobalStyles from "../styles/GlobalStyles";
 import { LinearGradient } from "expo-linear-gradient";
 
-export default function EkranKursow() {
+export default function EkranKursow({ navigation }) {
   const [rates, setRates] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -56,6 +56,15 @@ export default function EkranKursow() {
             keyExtractor={(item) => item.code}
           />
         )}
+        <TouchableOpacity
+          style={GlobalStyles.button}
+          onPress={() => {
+            console.log("Nawigacja do: EkranHistorii");
+            navigation.navigate("EkranHistorii");
+          }}
+        >
+          <Text style={GlobalStyles.buttonText}>Historia Kursów</Text>
+        </TouchableOpacity>
       </View>
     </LinearGradient>
   );

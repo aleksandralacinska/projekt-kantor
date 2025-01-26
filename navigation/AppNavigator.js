@@ -12,6 +12,7 @@ import EkranWplaty from "../screens/EkranWplaty";
 import EkranWymiany from "../screens/EkranWymiany";
 import EkranLogowania from "../screens/EkranLogowania";
 import EkranRejestracji from "../screens/EkranRejestracji";
+import EkranHistorii from "../screens/EkranHistorii";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -121,6 +122,12 @@ export default function AppNavigator() {
           name="App"
           component={TabNavigator}
           options={{ headerShown: false }}
+        />
+        {/* Ekran z historią kursów */}
+        <Stack.Screen
+          name="EkranHistorii"
+          component={EkranHistorii}
+          options={{ title: "Historia Kursów" }}
         />
       </Stack.Navigator>
     </NavigationContainer>
